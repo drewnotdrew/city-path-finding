@@ -131,5 +131,5 @@ routes = get_paths(explored)[:3]
 fig, ax = ox.plot_graph_routes(G, routes + [route], node_size=0)
 
 # Plot and export the background graph and the shortest path
-main_map, ax = ox.plot_graph(G, node_alpha=0, save=True, filepath='out/map.svg', show=False)
+main_map, ax = ox.plot_graph(G, node_size=0, save=True, filepath='out/map.svg', show=False)
 shortest_path, ax = ox.plot_graph_route(G, route, orig_dest_size=0, node_size=0, edge_alpha=0, save=True, filepath='out/route.svg', show=False)
