@@ -126,7 +126,7 @@ explored = explored_stack[-10]
 # update of its explored dictionary.
 routes = get_paths(explored)[:3]
 
-for i, ex in enumerate(explored_stack[2:]):
+for i, ex in enumerate(explored_stack):
     routes = get_paths(ex)
     ox.plot_graph_routes(
         G,
