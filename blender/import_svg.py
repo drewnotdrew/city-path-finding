@@ -7,7 +7,7 @@ path, file = os.path.split(blender_main_dir)
 os.chdir(path)
 
 # Import path svg
-filename = 'route.svg'
+filename = 'map.svg'
 bpy.ops.import_curve.svg(filepath=f"../out/{filename}")
 route_collection = bpy.data.collections.get(filename)
 collection_items = len(route_collection.objects)
