@@ -1,0 +1,10 @@
+{
+"python.autoComplete.extraPaths": [
+    "/home/drew/Documents/git/city-path-finding/blender_autocomplete/3.4",
+    "/snap/blender/current/3.4/scripts/modules",
+],
+"python.analysis.extraPaths": [
+    "/home/drew/Documents/git/city-path-finding/blender_autocomplete/3.4",
+    "/snap/blender/current/3.4/scripts/modules"
+]
+}

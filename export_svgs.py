@@ -146,12 +146,10 @@ fig, ax = ox.plot_graph_route(G, route, node_size=0, show=False)
 main_map, ax = ox.plot_graph(G, node_size=0, save=True, filepath='out/map.svg', show=False, bbox=plot_bounding)
 shortest_path, ax = ox.plot_graph_route(G, route, orig_dest_size=0, node_size=0, edge_linewidth=0, save=True, filepath='out/route.svg', show=False, bbox=plot_bounding)
 print(len(explored_stack))
-plot_step_diff(explored_stack, 200)
 
-# # Find the difference between two iterations 
-# explored_2 = explored_stack[1]
-# explored = explored_stack[2]
-# difference = {key: value for key, value in explored.items() if key not in explored_2 or explored_2[key] != value}
-# difference_route = get_paths(difference)[0]
-# # print(difference_route)
-# path_step, ax = ox.plot_graph_route(G, difference_route, orig_dest_size=0, node_size=0, edge_alpha=0, save=True, filepath='out/path_step.svg', show=False)
+for i in range(0, len(explored_stack)):
+    try:
+        print(f"Plotting {i}/{len(explored_stack) - 1}")
+        plot_step_diff(explored_stack, i)
+    except:
+        break
