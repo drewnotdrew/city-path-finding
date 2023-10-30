@@ -1,10 +1,10 @@
 from heapq import heappop, heappush
-from itertools import count
+from itertools import count, zip_longest
 import networkx as nx
 import osmnx as ox
+import math
 
 from networkx.algorithms.shortest_paths.weighted import _weight_function
-
 
 # Copied this from the source. Put it here so it makes more sense to modify it.
 @nx._dispatch(edge_attrs="weight", preserve_node_attrs="heuristic")
@@ -114,29 +114,45 @@ def get_paths(explored):
 
     return [build_path(explored, t) for t in terminal]
 
+def euclid(x1, x2, y1, y2):
+    return math.sqrt((x1-x2)**2 + (y1-y2)**2)
+
+# try not making the weight travel time
+def dist(a, b):
+    return euclid(G.nodes[a]['x'], G.nodes[b]['x'], G.nodes[a]['y'], G.nodes[b]['y'])
 
 # I modified astar_path to return it's explored dictionary each time it
 # updates the dictionary, so we could build the animation.
-route, explored_stack = my_astar_path(G, orig, dest, weight="travel_time")
+_, dij_explored_stack = my_astar_path(G, orig, dest, weight="speed")
+_, ast_explored_stack = my_astar_path(G, orig, dest, heuristic=dist, weight="speed")
 
 # Take, for example, the 10th to last instance of its explored dictionary.
-explored = explored_stack[-10]
+#explored = explored_stack[-10]
 
 # Take, for example, 3 paths that it explored at some point up until its 10th
 # update of its explored dictionary.
-routes = get_paths(explored)[:3]
+#routes = get_paths(explored)[:3]
 
-for i, ex in enumerate(explored_stack):
-    routes = get_paths(ex)
+explored = zip_longest(
+    dij_explored_stack,
+    ast_explored_stack,
+    fillvalue=min([dij_explored_stack, ast_explored_stack], key=len)
+)
+
+colors = ox.plot.get_colors(2)
+for i, (dij, ast) in enumerate(explored):
+    dij_routes = get_paths(dij)
+    ast_routes = get_paths(ast)
+    print(i)
     ox.plot_graph_routes(
         G,
-        routes + [routes[0]],
-        orig_dest_size=0,
+        dij_routes + ast_routes,
+        route_colors=(['r'] * len(dij_routes)) + (['g'] * len(ast_routes)),
         node_size=0,
-        edge_alpha=0,
         save=True,
-        filepath=f'out/routes{i}.svg',
-        show=False
+        filepath=f'out/routes{i}.jpg',
+        show=False,
+        dpi=100
     )
 
 # Plot these 3 routes with the optimal one in a static image. Can figure
