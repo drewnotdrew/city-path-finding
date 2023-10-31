@@ -1,6 +1,7 @@
 import bpy
 import os
 from random import randrange
+import re
 
 # Change to relative working directory
 def change_working_dir():
@@ -31,22 +32,22 @@ def import_svg(filename):
     os.system(f"cp ../out/{filename} ../out/tmp/{new_filename}") 
 #    os.rename(f"../out/{filename}", f"../out/{new_filename}")
     bpy.ops.import_curve.svg(filepath=f"../out/tmp/{new_filename}")
+    os.system(f"rm ../out/tmp/{new_filename}")
     svg_collection = bpy.data.collections.get(new_filename)
     return svg_collection
 
 def import_background_map():
     map_collection = import_svg('map.svg')
-    for object in map_collection.objects:
-       curve_name = object.name
-       print(curve_name)
-       print(object.type)
+#    for object in map_collection.objects:
+#       curve_name = object.name
+#       print(curve_name)
+#       print(object.type)
 
     for curve in bpy.data.curves:
         curve.extrude = 0.0005
     object_num = 0  
     for object in map_collection.objects:
         object_num+=1
-        print(object_num)
         modifier = object.modifiers.new(name="test", type='SOLIDIFY')
         modifier.thickness = 0.0005
         modifier.offset = 0
@@ -56,6 +57,35 @@ def import_background_map():
 change_working_dir()
 delete_all_collections()
 import_background_map()
+
+route_collections_sorted = []
+route_collections = {}
+for root, dirs, files in os.walk("../out"):
+    for file in files:
+        if re.search("out[0-9]+.svg", file):
+            svg_collection = import_svg(file)
+            route_collections[file.split('.')[0].split('out')[1]] = svg_collection
+            route_collections_sorted += [file.split('.')[0].split('out')[1]]
+            
+route_collections_sorted.sort(key = int)
+
+for collection_num in route_collections_sorted:
+    collection = route_collections.get(collection_num)
+    for curve in bpy.data.curves:
+        curve.extrude = 0.0005
+    
+    object_num = 0  
+    for object in collection.objects:
+        object_num+=1
+        modifier = object.modifiers.new(name="test", type='SOLIDIFY')
+        modifier.thickness = 0.00025
+        modifier.offset = 0
+        modifier.use_even_offset
+    # for object in collection.objects:
+        
+#print(str(route_collections_sorted))
+    
+
 # Import background map
 
 #    object.modifiers.new(name=f"solidify{object_num}", type='SOLIDIFY')
