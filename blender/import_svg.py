@@ -27,6 +27,10 @@ def delete_all():
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete()
 
+def delete_all_materials():
+    for material in bpy.data.materials:
+        bpy.data.materials.remove(material)
+
 def import_svg(filename):
     new_filename = str(randrange(9999999)) + filename
     os.system(f"cp ../out/{filename} ../out/tmp/{new_filename}") 
@@ -49,38 +53,87 @@ def import_background_map():
     for object in map_collection.objects:
         object_num+=1
         modifier = object.modifiers.new(name="test", type='SOLIDIFY')
-        modifier.thickness = 0.0005
-        modifier.offset = 0
-        modifier.use_even_offset
-        object.location[2] = -0.0005
-
-change_working_dir()
-delete_all_collections()
-import_background_map()
-
-route_collections_sorted = []
-route_collections = {}
-for root, dirs, files in os.walk("../out"):
-    for file in files:
-        if re.search("out[0-9]+.svg", file):
-            svg_collection = import_svg(file)
-            route_collections[file.split('.')[0].split('out')[1]] = svg_collection
-            route_collections_sorted += [file.split('.')[0].split('out')[1]]
-            
-route_collections_sorted.sort(key = int)
-
-for collection_num in route_collections_sorted:
-    collection = route_collections.get(collection_num)
-    for curve in bpy.data.curves:
-        curve.extrude = 0.0005
-    
-    object_num = 0  
-    for object in collection.objects:
-        object_num+=1
-        modifier = object.modifiers.new(name="test", type='SOLIDIFY')
         modifier.thickness = 0.00025
         modifier.offset = 0
         modifier.use_even_offset
+        object.location[2] = -0.0005
+    return map_collection
+
+def import_routes():
+    route_collections_sorted = []
+    route_collections = {}
+    for root, dirs, files in os.walk("../out"):
+        for file in files:
+            if re.search("out[0-9]+.svg", file):
+                svg_collection = import_svg(file)
+                route_collections[file.split('.')[0].split('out')[1]] = svg_collection
+                route_collections_sorted += [file.split('.')[0].split('out')[1]]
+                
+    route_collections_sorted.sort(key = int)
+
+    for collection_num in route_collections_sorted:
+        collection = route_collections.get(collection_num)
+        for curve in bpy.data.curves:
+            curve.extrude = 0.0005
+        
+        object_num = 0  
+        for object in collection.objects:
+            object_num+=1
+            modifier = object.modifiers.new(name="test", type='SOLIDIFY')
+            modifier.thickness = 0.000125
+            modifier.offset = 0
+            modifier.use_even_offset
+            
+def create_background_map_material():
+    # Create background map material
+    bg_map_material_name = "bg_map_material" #+ str(randrange(9999999))
+    bpy.data.materials.new(name=bg_map_material_name)
+    bg_map_material = bpy.data.materials.get(bg_map_material_name)
+    bg_map_material.use_nodes = True
+
+
+    for node in bg_map_material.node_tree.nodes:
+        node_name = node.name
+        bg_map_material.node_tree.nodes.remove(bg_map_material.node_tree.nodes.get(node_name))
+
+    bg_map_material.node_tree.nodes.new(type="ShaderNodeOutputMaterial")
+    bg_map_material.node_tree.nodes.new(type="ShaderNodeEmission")
+    bg_map_material.node_tree.links.new(
+        bg_map_material.node_tree.nodes["Emission"].outputs["Emission"],
+        bg_map_material.node_tree.nodes["Material Output"].inputs["Surface"],
+    )
+
+    bg_map_material.node_tree.nodes["Emission"].inputs["Strength"].default_value = 8
+    bg_map_material.node_tree.nodes["Emission"].inputs["Color"].default_value = (0.0478408, 0.288436, 0.447972, 1)
+    return bg_map_material
+
+change_working_dir()
+delete_all_collections()
+delete_all_materials
+map_collection = import_background_map()
+import_routes()
+bg_map_material = create_background_map_material()
+
+for object in map_collection.objects:
+    object.active_material = bg_map_material
+
+
+
+
+
+
+
+#bpy.data.materials["bg_map_material"].node_tree.nodes["Emission"].inputs[0].default_value
+
+
+
+#for material in bpy.data.materials:
+#    bpy.data.materials.remove(material)
+
+#print(background_map_material)
+    
+    
+    
     # for object in collection.objects:
         
 #print(str(route_collections_sorted))
