@@ -3,6 +3,23 @@ import os
 from random import randrange
 import re
 
+# User Parameters
+FRAME_RATE = bpy.context.scene.render.fps
+
+# Parameters
+BACKGROUND_HEIGHT = 0.0005
+BACKGROUND_THICKNESS = 0.00025
+BACKGROUND_STRENGTH = 1
+BACKGROUND_LEAD_IN_s = 1
+BACKGROUND_COLOR = (0.0478408, 0.288436, 0.447972, 1)
+
+ROUTES_HEIGHT = 0.0005
+ROUTES_THICKNESS = 0.000125
+ROUTES_STRENGTH_INITIAL = 0
+ROUTES_STRENGTH_FINAL = 0
+ROUTES_LEAD_IN_s = 0
+ROUTES_LEAD_OUT_s = 0
+
 # Change to relative working directory
 def change_working_dir():
     blender_main_dir = os.path.dirname(os.path.realpath(__file__))
@@ -42,21 +59,17 @@ def import_svg(filename):
 
 def import_background_map():
     map_collection = import_svg('map.svg')
-#    for object in map_collection.objects:
-#       curve_name = object.name
-#       print(curve_name)
-#       print(object.type)
 
     for curve in bpy.data.curves:
-        curve.extrude = 0.0005
+        curve.extrude = BACKGROUND_HEIGHT
     object_num = 0  
     for object in map_collection.objects:
         object_num+=1
         modifier = object.modifiers.new(name="test", type='SOLIDIFY')
-        modifier.thickness = 0.00025
+        modifier.thickness = BACKGROUND_THICKNESS
         modifier.offset = 0
         modifier.use_even_offset
-        object.location[2] = -0.0005
+        object.location[2] = -BACKGROUND_HEIGHT
     return map_collection
 
 def import_routes():
@@ -74,13 +87,13 @@ def import_routes():
     for collection_num in route_collections_sorted:
         collection = route_collections.get(collection_num)
         for curve in bpy.data.curves:
-            curve.extrude = 0.0005
+            curve.extrude = ROUTES_HEIGHT
         
         object_num = 0  
         for object in collection.objects:
             object_num+=1
             modifier = object.modifiers.new(name="test", type='SOLIDIFY')
-            modifier.thickness = 0.000125
+            modifier.thickness = ROUTES_THICKNESS
             modifier.offset = 0
             modifier.use_even_offset
             
@@ -103,8 +116,11 @@ def create_background_map_material():
         bg_map_material.node_tree.nodes["Material Output"].inputs["Surface"],
     )
 
-    bg_map_material.node_tree.nodes["Emission"].inputs["Strength"].default_value = 8
-    bg_map_material.node_tree.nodes["Emission"].inputs["Color"].default_value = (0.0478408, 0.288436, 0.447972, 1)
+    bg_map_material.node_tree.nodes["Emission"].inputs["Strength"].default_value = 0
+    bg_map_material.node_tree.nodes["Emission"].inputs["Color"].default_value = BACKGROUND_COLOR
+    bg_map_material.node_tree.nodes["Emission"].inputs["Strength"].keyframe_insert(data_path='default_value', frame = 0)
+    bg_map_material.node_tree.nodes["Emission"].inputs["Strength"].default_value = BACKGROUND_STRENGTH
+    bg_map_material.node_tree.nodes["Emission"].inputs["Strength"].keyframe_insert(data_path='default_value', frame = FRAME_RATE*BACKGROUND_LEAD_IN_s)
     return bg_map_material
 
 change_working_dir()
@@ -116,10 +132,6 @@ bg_map_material = create_background_map_material()
 
 for object in map_collection.objects:
     object.active_material = bg_map_material
-
-
-
-
 
 
 
