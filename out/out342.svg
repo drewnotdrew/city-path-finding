@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="576pt" height="576pt" viewBox="0 0 576 576" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2023-10-29T02:30:38.478871</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.8.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="axes_1">
+   <g id="PathCollection_1">
+    <defs>
+     <path id="C0_0_a37e258e66" d="M 0 0 
+C 0 0 0 0 0 0 
+C 0 0 0 0 0 -0 
+C 0 -0 0 -0 0 -0 
+C 0 -0 0 -0 0 -0 
+C 0 0 0 0 0 0 
+C 0 0 0 0 0 0 
+C 0 0 0 0 0 0 
+C 0 0 0 0 0 0 
+z
+"/>
+    </defs>
+    <g clip-path="url(#p6e4810a9b1)">
+     <use xlink:href="#C0_0_a37e258e66" x="501.137384" y="427.471048" style="fill: #ff0000; fill-opacity: 0.5"/>
+    </g>
+    <g clip-path="url(#p6e4810a9b1)">
+     <use xlink:href="#C0_0_a37e258e66" x="522.958994" y="420.100553" style="fill: #ff0000; fill-opacity: 0.5"/>
+    </g>
+   </g>
+   <g id="line2d_1">
+    <path d="M 501.137384 427.471048 
+L 502.439389 427.350556 
+L 503.908411 427.546072 
+L 505.618078 428.14626 
+L 507.351092 428.362237 
+L 509.567195 428.096245 
+L 511.565998 427.446041 
+L 513.180485 426.602594 
+L 514.480694 425.352202 
+L 515.468423 424.170012 
+L 517.17809 421.207719 
+L 518.189165 420.196038 
+L 519.176893 419.691334 
+L 520.284945 419.498091 
+L 521.154145 419.520826 
+L 521.479198 419.52992 
+L 522.958994 420.100553 
+" clip-path="url(#p6e4810a9b1)" style="fill: none; stroke: #ff0000; stroke-opacity: 0.5; stroke-width: 4; stroke-linecap: square"/>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p6e4810a9b1">
+   <rect x="0" y="85.281828" width="576" height="405.436345"/>
+  </clipPath>
+ </defs>
+</svg>
