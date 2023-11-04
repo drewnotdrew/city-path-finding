@@ -8,17 +8,19 @@ FRAME_RATE = bpy.context.scene.render.fps
 
 # Parameters
 BACKGROUND_HEIGHT = 0.0005
-BACKGROUND_THICKNESS = 0.00025
-BACKGROUND_STRENGTH = 1
+BACKGROUND_THICKNESS = 0.0003
+BACKGROUND_STRENGTH = 0.4
 BACKGROUND_LEAD_IN_s = 1
-BACKGROUND_COLOR = (0.0478408, 0.288436, 0.447972, 1)
+BACKGROUND_COLOR = (0.0478408, 0.288436, 0.447972, 0.05)
 
 ROUTES_HEIGHT = 0.0005
 ROUTES_THICKNESS = 0.000125
-ROUTES_STRENGTH_INITIAL = 0
-ROUTES_STRENGTH_FINAL = 0
-ROUTES_LEAD_IN_s = 0
-ROUTES_LEAD_OUT_s = 0
+ROUTES_STRENGTH_INITIAL = 3
+ROUTES_STRENGTH_FINAL = 2
+ROUTES_LEAD_IN_s = 3/60
+ROUTES_LEAD_OUT_s = 0.5
+ROUTES_DELAY_START_s = 0.5
+ROUTES_COLOR = (0.0478408, 0.288436, 0.447972, 1)
 
 # Change to relative working directory
 def change_working_dir():
@@ -69,7 +71,7 @@ def import_background_map():
         modifier.thickness = BACKGROUND_THICKNESS
         modifier.offset = 0
         modifier.use_even_offset
-        object.location[2] = -BACKGROUND_HEIGHT
+        object.location[2] = BACKGROUND_HEIGHT
     return map_collection
 
 def import_routes():
@@ -96,6 +98,7 @@ def import_routes():
             modifier.thickness = ROUTES_THICKNESS
             modifier.offset = 0
             modifier.use_even_offset
+    return route_collections_sorted, route_collections
             
 def create_background_map_material():
     # Create background map material
@@ -103,7 +106,6 @@ def create_background_map_material():
     bpy.data.materials.new(name=bg_map_material_name)
     bg_map_material = bpy.data.materials.get(bg_map_material_name)
     bg_map_material.use_nodes = True
-
 
     for node in bg_map_material.node_tree.nodes:
         node_name = node.name
@@ -123,15 +125,58 @@ def create_background_map_material():
     bg_map_material.node_tree.nodes["Emission"].inputs["Strength"].keyframe_insert(data_path='default_value', frame = FRAME_RATE*BACKGROUND_LEAD_IN_s)
     return bg_map_material
 
+def create_emissive_material(material_name, color):
+    bpy.data.materials.new(name=material_name)
+    material = bpy.data.materials.get(material_name)
+    material.use_nodes = True
+    
+    for node in material.node_tree.nodes:
+        node_name = node.name
+        material.node_tree.nodes.remove(material.node_tree.nodes.get(node_name))
+        
+    material.node_tree.nodes.new(type="ShaderNodeOutputMaterial")
+    material.node_tree.nodes.new(type="ShaderNodeEmission")
+    material.node_tree.links.new(
+        material.node_tree.nodes["Emission"].outputs["Emission"],
+        material.node_tree.nodes["Material Output"].inputs["Surface"],
+    )
+    material.node_tree.nodes["Emission"].inputs["Strength"].default_value = 0
+    material.node_tree.nodes["Emission"].inputs["Color"].default_value = color
+    return material
+    
+
 change_working_dir()
 delete_all_collections()
 delete_all_materials
-map_collection = import_background_map()
-import_routes()
+background_collection = import_background_map()
+route_keys, routes = import_routes()
 bg_map_material = create_background_map_material()
 
-for object in map_collection.objects:
+# Apply material to background
+for object in background_collection.objects:
     object.active_material = bg_map_material
+
+# Create route materials
+route_material_name = 0
+route_materials = []
+for key in route_keys:
+    collection = routes.get(key)
+    route_material_name += 1
+    route_material = create_emissive_material(material_name=str(route_material_name), color=ROUTES_COLOR)
+    route_materials += [route_material]
+    for object in collection.objects:
+        object.active_material = route_material
+
+# Create keyframes for routes
+keyframe_index = FRAME_RATE * (BACKGROUND_LEAD_IN_s + ROUTES_DELAY_START_s)
+for route_material in route_materials:
+    emissivity_strength = route_material.node_tree.nodes["Emission"].inputs["Strength"]
+    emissivity_strength.keyframe_insert(data_path='default_value', frame = keyframe_index)
+    emissivity_strength.default_value = ROUTES_STRENGTH_INITIAL
+    keyframe_index += FRAME_RATE * ROUTES_LEAD_IN_s
+    emissivity_strength.keyframe_insert(data_path='default_value', frame = keyframe_index)
+#    emissivity_strength.default_value = ROUTES_STRENGTH_FINAL
+#    emissivity_strength.keyframe_insert(data_path='default_value', frame = keyframe_index - FRAME_RATE * ROUTES_LEAD_OUT_s)
 
 
 
